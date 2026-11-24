@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { marked } from 'marked';
 import './App.css';
+
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -130,7 +136,10 @@ function App() {
                 <div className="assistant-message-box" data-testid="assistant-message">
                   <div className="role-tag assistant-tag">Assistant</div>
                   <div className="assistant-body">
-                    <div className="reply-text">{msg.content}</div>
+                    <div
+                      className="reply-text"
+                      dangerouslySetInnerHTML={{ __html: marked.parse(msg.content || '') }}
+                    />
                     {msg.metadata && (
                       <div className="metadata-bar">
                         <span
