@@ -9,18 +9,55 @@ marked.setOptions({
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
+const estimateCost = (inputTokens = 0, outputTokens = 0) => {
+  const inCost = (inputTokens / 1000000) * 0.15;
+  const outCost = (outputTokens / 1000000) * 0.60;
+  const total = inCost + outCost;
+  if (total === 0) return '$0.0000';
+  return total < 0.0001 ? '<$0.0001' : `$${total.toFixed(4)}`;
+};
+
 function generateSessionId() {
   return 's-' + Math.random().toString(36).substring(2, 10);
 }
 
 function App() {
-  const [sessionId] = useState(() => generateSessionId());
+  const [sessionId, setSessionId] = useState(() => generateSessionId());
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  const handleNewChat = () => {
+    setSessionId(generateSessionId());
+    setMessages([]);
+    setInput('');
+    inputRef.current?.focus();
+  };
+
+  const handleExportChat = () => {
+    if (messages.length === 0) return;
+    const exportData = {
+      session_id: sessionId,
+      exported_at: new Date().toISOString(),
+      messages: messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+        metadata: m.metadata || null,
+      })),
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `chat-${sessionId}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -95,6 +132,14 @@ function App() {
           <span className="console-desc">LiteLLM Gateway • Key Failover • SQLite Storage</span>
         </div>
         <div className="header-right">
+          <button className="header-action-btn" onClick={handleNewChat} title="Start a fresh conversation">
+            + New Chat
+          </button>
+          {messages.length > 0 && (
+            <button className="header-action-btn" onClick={handleExportChat} title="Export conversation as JSON">
+              Export Chat
+            </button>
+          )}
           <span className="session-tag">Session: {sessionId}</span>
         </div>
       </header>
@@ -161,6 +206,9 @@ function App() {
                         </span>
                         <span className="meta-pill">
                           Output: <strong data-testid="meta-output-tokens">{msg.metadata.output_tokens}</strong>
+                        </span>
+                        <span className="meta-pill">
+                          Cost: <strong>{estimateCost(msg.metadata.input_tokens, msg.metadata.output_tokens)}</strong>
                         </span>
                       </div>
                     )}

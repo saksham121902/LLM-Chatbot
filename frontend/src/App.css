@@ -66,6 +66,31 @@ body {
   display: block;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-action-btn {
+  background-color: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.header-action-btn:hover {
+  background-color: #22222b;
+  color: var(--text-primary);
+  border-color: #3f3f4e;
+}
+
 .session-tag {
   font-family: var(--font-mono);
   font-size: 0.78rem;
