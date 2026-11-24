@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Environment & Privacy
+.env
+.env.*
+*.env
+!.env.example
+
+# Logs
+*.log
+backend/server.log
+
+# Data & SQLite Cache
+*.db
+data/
+litellm_cache/
+.litellm_cache/
+test_data/
+test.db
+test_app.db
+app.db
+
+# Assignment PDF (as requested)
+*.pdf
+Lyftr_AI_Full_Stack_Assignment.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# React build
+frontend/build/
