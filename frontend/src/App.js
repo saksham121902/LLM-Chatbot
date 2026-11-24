@@ -65,7 +65,7 @@ function App() {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: 'error', content: err.message || 'Network connection failed. Please retry.' },
+        { role: 'error', content: err.message || 'Network connection failed. Please try again.' },
       ]);
     } finally {
       setLoading(false);
@@ -82,58 +82,53 @@ function App() {
 
   return (
     <div className="terminal-container">
-      {/* Top Console Bar */}
+      {/* Header */}
       <header className="console-header">
         <div className="header-left">
-          <div className="app-badge">CLAUDE-STYLE CORE</div>
-          <h1 className="console-title">LLM Gateway Terminal</h1>
-          <span className="console-desc">LiteLLM Proxy • Automated Failover • SQLite Persistence</span>
+          <h1 className="console-title">LLM Chatbot</h1>
+          <span className="console-desc">LiteLLM Gateway • Key Failover • SQLite Storage</span>
         </div>
         <div className="header-right">
-          <span className="session-tag">SESSION: {sessionId}</span>
+          <span className="session-tag">Session: {sessionId}</span>
         </div>
       </header>
 
       {/* System Prompt Control */}
       <div className="system-config-bar">
-        <span className="config-label">SYSTEM PROMPT:</span>
+        <span className="config-label">System Prompt:</span>
         <input
           id="system-prompt-field"
           data-testid="system-prompt-input"
           type="text"
           className="system-config-input"
-          placeholder="Optional instruction to override model persona or format..."
+          placeholder="Optional instruction to guide model behavior..."
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
       </div>
 
-      {/* Stream Window */}
+      {/* Messages Stream */}
       <main className="console-stream">
         {messages.length === 0 ? (
           <div className="empty-console">
-            <div className="empty-title">CONSOLE READY</div>
+            <div className="empty-title">Ready to Chat</div>
             <p className="empty-subtitle">
-              Awaiting instructions. Multi-turn conversation context is automatically synchronized to SQLite.
+              Type a message below to start your conversation. Conversation turns are stored in SQLite.
             </p>
-            <div className="cli-hint">
-              <span>Example command:</span>
-              <code>Explain the difference between SQLite WAL mode and LiteLLM response caching.</code>
-            </div>
           </div>
         ) : (
           messages.map((msg, idx) => (
             <div key={idx} className={`stream-item ${msg.role}`}>
               {msg.role === 'user' && (
                 <div className="user-message-box">
-                  <div className="role-tag user-tag">USER</div>
+                  <div className="role-tag user-tag">User</div>
                   <div className="user-text">{msg.content}</div>
                 </div>
               )}
 
               {msg.role === 'assistant' && (
                 <div className="assistant-message-box" data-testid="assistant-message">
-                  <div className="role-tag assistant-tag">ASSISTANT</div>
+                  <div className="role-tag assistant-tag">Assistant</div>
                   <div className="assistant-body">
                     <div className="reply-text">{msg.content}</div>
                     {msg.metadata && (
@@ -147,16 +142,16 @@ function App() {
                           {msg.metadata.resolution_source}
                         </span>
                         <span className="meta-pill">
-                          MODEL: <strong data-testid="meta-model">{msg.metadata.model}</strong>
+                          Model: <strong data-testid="meta-model">{msg.metadata.model}</strong>
                         </span>
                         <span className="meta-pill">
-                          LATENCY: <strong data-testid="meta-latency">{msg.metadata.latency_ms} ms</strong>
+                          Latency: <strong data-testid="meta-latency">{msg.metadata.latency_ms} ms</strong>
                         </span>
                         <span className="meta-pill">
-                          IN: <strong data-testid="meta-input-tokens">{msg.metadata.input_tokens}</strong>
+                          Input: <strong data-testid="meta-input-tokens">{msg.metadata.input_tokens}</strong>
                         </span>
                         <span className="meta-pill">
-                          OUT: <strong data-testid="meta-output-tokens">{msg.metadata.output_tokens}</strong>
+                          Output: <strong data-testid="meta-output-tokens">{msg.metadata.output_tokens}</strong>
                         </span>
                       </div>
                     )}
@@ -166,7 +161,7 @@ function App() {
 
               {msg.role === 'error' && (
                 <div className="error-message-box">
-                  <div className="role-tag error-tag">SYSTEM ERROR</div>
+                  <div className="role-tag error-tag">Error</div>
                   <div className="error-text">{msg.content}</div>
                 </div>
               )}
@@ -177,10 +172,8 @@ function App() {
         {loading && (
           <div className="stream-item assistant">
             <div className="assistant-message-box loading-box">
-              <div className="role-tag assistant-tag">ASSISTANT</div>
-              <div className="loading-state">
-                <span className="blink-cursor">&gt;</span> Generating completion...
-              </div>
+              <div className="role-tag assistant-tag">Assistant</div>
+              <div className="loading-state">Thinking...</div>
             </div>
           </div>
         )}
@@ -188,10 +181,9 @@ function App() {
         <div ref={messagesEndRef} />
       </main>
 
-      {/* Terminal Input Dock */}
+      {/* Input Dock */}
       <footer className="console-dock">
         <div className="dock-wrapper">
-          <div className="prompt-prefix">&gt;</div>
           <textarea
             ref={inputRef}
             data-testid="chat-input"
@@ -199,7 +191,7 @@ function App() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Send message... (Enter to dispatch, Shift+Enter for newline)"
+            placeholder="Type your message here... (Enter to send, Shift+Enter for new line)"
             rows={1}
             disabled={loading}
           />
@@ -210,7 +202,7 @@ function App() {
             onClick={() => sendMessage()}
             disabled={loading || !input.trim()}
           >
-            EXECUTE
+            Send
           </button>
         </div>
       </footer>
